@@ -169,6 +169,13 @@ def ipv4_subnet_details(addr, mask):
 
 
 def subnetting_funct(addr, mask, subnetting_mask):
+    '''
+    Function to print the total no. of subnets possible from the parent network for the given valid subnetting mask
+    :param addr: For future use, to return the subnets
+    :param mask: mask of the original IP network
+    :param subnetting_mask: mask of the subnet
+    :return: None
+    '''
     wildcard_mask = {
         "255": "0",
         "254": "1",
