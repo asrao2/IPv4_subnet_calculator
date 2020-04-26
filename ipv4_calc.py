@@ -12,6 +12,8 @@ def ipv4_address_validator(addr):
         return False
 
 def cidr_to_common(cidr_mask):
+    '''Function that returns a common mask (Ex: 255.255.255.0)
+       for a given input CIDR mask (Ex: 24)'''
     cidrtocommon={1:'128.0.0.0',2:'192.0.0.0',3:'224.0.0.0',4:'240.0.0.0',5:'248.0.0.0',6:'252.0.0.0',7:'254.0.0.0',8:'255.0.0.0',
 9:'255.128.0.0',10:'255.192.0.0',11:'255.224.0.0',12:'255.240.0.0',13:'255.248.0.0',14:'255.252.0.0',15:'255.254.0.0',16:'255.255.0.0',
 17:'255.255.128.0',18:'255.255.192.0',19:'255.255.224.0',20:'255.255.240.0',21:'255.255.248.0',22:'255.255.252.0',23:'255.255.254.0',24:'255.255.255.0',
@@ -22,6 +24,8 @@ def cidr_to_common(cidr_mask):
         raise ValueError("Incorrect CIDR mask entered")
 
 def common_to_cidr(common_mask):
+    '''Function that returns a CIDR mask (Ex: 24)
+        for a given input common mask (Ex: 255.255.255.0)'''
     commontocidr={'128.0.0.0':1,'192.0.0.0':2,'224.0.0.0':3,'240.0.0.0':4,'248.0.0.0':5,'252.0.0.0':6,'254.0.0.0':7,'255.0.0.0':8,
 '255.128.0.0':9,'255.192.0.0':10,'255.224.0.0':11,'255.240.0.0':12,'255.248.0.0':13,'255.252.0.0':14,'255.254.0.0':15,'255.255.0.0':16,
 '255.255.128.0':17,'255.255.192.0':18,'255.255.224.0':19,'255.255.240.0':20,'255.255.248.0':21,'255.255.252.0':22,'255.255.254.0':23,'255.255.255.0':24,
@@ -82,34 +86,20 @@ def subnetting_funct(addr,mask,subnetting_mask):
     else:
         total_sub_networks=2**(common_to_cidr(subnetting_mask)-common_to_cidr(mask))
         print(f"Total subnets: {total_sub_networks}")
-        octet=0
-        for _mask in subnetting_mask.split('.'):
-            octet+=1
-            if _mask!='255':
-                oct_mask=_mask
-                break
-        print('---------------------------------------')
-        oct_wc=int(wildcard_mask[str(oct_mask)])
-        network_addr = ipv4_subnet_details(addr, subnetting_mask)
-        rest_subnets=[]
-        oct_add=0
-        for i in range(2, total_sub_networks + 1):
-            oct_add+=(oct_wc+1)
-            count=0
-            rest_ip = []
-            for elem in network_addr:
-                count+=1
-                if count==octet:
-                    rest_ip.append(str(int(network_addr[count])+oct_add))
-                else:
-                    rest_ip.append(elem)
-            rest_subnets.append('.'.join(rest_ip))
-        print(rest_subnets)
-        for elem in rest_subnets:
-            print('---------------------------------------')
-            ipv4_subnet_details(elem,subnetting_mask)
 
-
+if __name__=='__main__':
+    ip=str(input("Enter IP address: "))
+    mask=cidr_to_common(int(input("Enter CIDR subnet mask [Ex: 28]: ")))
+    if ipv4_address_validator(ip):
+        ipv4_subnet_details(ip,mask)
+    subnet_further=str(input("Do you want to subnet further?[y/n]: "))
+    if subnet_further=='y':
+        subnetting_mask=cidr_to_common(int(input("Enter CIDR mask to subnet to [Ex: 28]: ")))
+        subnetting_funct(ip,mask,subnetting_mask)
+    elif subnet_further=='n':
+        print("Exiting App...")
+    else:
+        print("Invalid Input.. Please retry. Exiting App...")
 
 
 
