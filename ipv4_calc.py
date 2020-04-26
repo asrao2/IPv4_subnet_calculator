@@ -166,7 +166,6 @@ def ipv4_subnet_details(addr, mask):
         f"Host Address range: {'.'.join(host_address_low)} to {'.'.join(host_address_high)}"
     )
     print(f"Total no. of usable host addresses: {host_ips}")
-    return network_address
 
 
 def subnetting_funct(addr, mask, subnetting_mask):
