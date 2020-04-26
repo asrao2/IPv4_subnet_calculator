@@ -8,7 +8,7 @@ This python3 script takes an IPv4 address and a subnet mask as input and prints 
 
 The script then prompts the user if it is required to subnet the input network further. If yes, the user can input the mask to be subnetted to. The script returns the number of subnets possible for the given mask.
 
-###Example
+##Example
 Below is an example of the inputs and outputs on the console:
 ```commandline
 Enter IP address: 192.168.1.1
@@ -21,8 +21,8 @@ Do you want to subnet further?[y/n]: y
 Enter CIDR mask to subnet to [Ex: 28]: 25
 Total subnets: 2
 ```
-###Author
+##Author
 * Ashish Rao - <ash.floydian@gmail.com>
 
-###License
+##License
 This project is licensed under the MIT License - see the LICENSE.md file for details
