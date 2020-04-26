@@ -101,7 +101,7 @@ def common_to_cidr(common_mask):
 
 def ipv4_mask_validator(mask):
     """
-    Regex to validate an ipv4 subnet mask.
+    Function to validate an ipv4 subnet mask.
     Checks if each octet is has one of the values (255,254,252,248,240,224,192,128)
     Also checks if the value in next octet is less than previous
     Returns True/False
@@ -127,7 +127,7 @@ def ipv4_subnet_details(addr, mask):
     Function that prints the subnet related details- Network, Broadcast, Host IP range and number of host addresses
     :param addr: IP address
     :param mask: subnet mask
-    :return: None. Prints Subnet details
+    :return: result dictionary containing the details
     """
     network_address = []
     broadcast_address = []
@@ -160,18 +160,18 @@ def ipv4_subnet_details(addr, mask):
         str(int(broadcast_address[3]) - 1)
     ]  # subtract 1 from the last octet of the broadcast address to get the last usable host ip
     host_ips = num_ips - 2  # subtract 2 that is network and bc address
-    print(f"Network Address: {'.'.join(network_address)}")
-    print(f"Broadcast Address: {'.'.join(broadcast_address)}")
-    print(
-        f"Host Address range: {'.'.join(host_address_low)} to {'.'.join(host_address_high)}"
-    )
-    print(f"Total no. of usable host addresses: {host_ips}")
+    result=dict()
+    result['nw_addr']='.'.join(network_address)
+    result['bc_addr']='.'.join(broadcast_address)
+    result['host_addr_range']=f"Host Address range: {'.'.join(host_address_low)} to {'.'.join(host_address_high)}"
+    result['usable_ips']=host_ips
+    return result
 
 
 def subnetting_funct(addr, mask, subnetting_mask):
     '''
     Function to print the total no. of subnets possible from the parent network for the given valid subnetting mask
-    :param addr: For future use, to return the subnets
+    :param addr: input ip address
     :param mask: mask of the original IP network
     :param subnetting_mask: mask of the subnet
     :return: None
@@ -197,14 +197,53 @@ def subnetting_funct(addr, mask, subnetting_mask):
         total_sub_networks = 2 ** (
             common_to_cidr(subnetting_mask) - common_to_cidr(mask)
         )
-        print(f"Total subnets: {total_sub_networks}")
-
+    print("-------------------------------")
+    print(f"Following are the networks after subnetting /{common_to_cidr(mask)} to /{common_to_cidr(subnetting_mask)}:")
+    print("-------------------------------\n")
+    print(f"Total subnets: {total_sub_networks}\n")
+    for i in range(total_sub_networks):
+        if i==0:
+            next_addr=ipv4_subnet_details(addr,mask)['nw_addr']
+            print(f"Subnet {i+1} : {next_addr}/{common_to_cidr(subnetting_mask)}")
+        else:
+            next_addr_list=[]
+            carry=0
+            j=0
+            for _net,_mask in zip(next_addr.split('.')[::-1],list(map(lambda x: wildcard_mask[x], subnetting_mask.split('.')))[::-1]): # start from 4th octet, end at 1st octet. This loop is to obtain the next network ip.
+                j+=1
+                if j==1: # 4th octet
+                    if int(_net)+int(_mask)+1>255: # add the value in the octet (of IP) with the wc mask octet + 1. If this is > 255, generate a carry for the next octet.
+                        carry=1
+                        next_addr_list.append('0')
+                    elif int(_net)+int(_mask)+1<=255:
+                        next_addr_list.append(str(int(_net) + int(_mask)+1))
+                else:
+                    if carry==1:
+                        if int(_net)+int(_mask)+1<=255:
+                            next_addr_list.append(str(int(_net) + int(_mask) + 1))
+                            carry=0
+                        elif int(_net)+int(_mask)+1>255:
+                            next_addr_list.append('0')
+                            carry=1
+                    elif carry==0:
+                        next_addr_list.append(_net) # if there is no carry, keep octet as is.
+            next_addr='.'.join(next_addr_list[::-1]) # reverse it again to read as octet 1 to octet 4
+            print(f"Subnet {i+1} : {next_addr}/{common_to_cidr(subnetting_mask)}")
+    print("-------------------------------")
 
 if __name__ == "__main__":
     ip = str(input("Enter IP address: "))
     mask = cidr_to_common(int(input("Enter CIDR subnet mask [Ex: 28]: ")))
     if ipv4_address_validator(ip):
-        ipv4_subnet_details(ip, mask)
+        result=ipv4_subnet_details(ip, mask)
+        print("-------------------------------")
+        print("Following are the Network Details:")
+        print("-------------------------------")
+        print(f"Network Address: {result['nw_addr']}")
+        print(f"Broadcast Address: {result['bc_addr']}")
+        print(f"{result['host_addr_range']}")
+        print(f"Total no. of usable host addresses: {result['usable_ips']}")
+        print("-------------------------------")
     subnet_further = str(input("Do you want to subnet further?[y/n]: "))
     if subnet_further == "y":
         subnetting_mask = cidr_to_common(
