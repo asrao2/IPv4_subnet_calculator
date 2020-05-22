@@ -36,7 +36,7 @@ Subnet 4 : 192.169.128.0/17
 -------------------------------
 ```
 ### Author
-* Ashish Rao - <ash.floydian@gmail.com>
+* Ashish Rao - github.com/asrao2
 
 ### License
 This project is licensed under the MIT License - see the LICENSE.md file for details
